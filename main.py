@@ -1,8 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+import re
 
 # https://coinmarketcap.com/
+
 
 def write_csv(data):
     with open('coins.csv', 'a') as file:
@@ -11,9 +13,10 @@ def write_csv(data):
 
 
 def re_find(string):
-    '''
-    $8,705.75 => 8,705.75
-    '''
+    """
+    :param string: $8,705.75
+    :return: 8,705.75
+    """
     result = string.replace('$', '')
     return result
 
@@ -47,7 +50,15 @@ def get_data(html):
 
 def main():
     url = 'https://coinmarketcap.com'
-    get_data(get_html(url))
+
+    while True:
+        get_data(get_html(url))
+        soup = BeautifulSoup(get_html(url), 'lxml')
+        try:
+            pattern = 'Next'
+            url = 'https://coinmarketcap.com' + soup.find('a', text=re.compile(pattern)).get('href')
+        except:
+            break
 
 
 if __name__ == '__main__':
